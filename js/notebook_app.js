@@ -966,7 +966,7 @@
             pyodide.globals.set('__user_code__', activeExecution.code);
             pyodide.globals.set('__inputs_queue__', activeExecution.inputs || []);
 
-            const runnerScript = `
+            const runnerScript = 
 import sys
 import io
 import builtins
@@ -991,7 +991,7 @@ def custom_input(prompt=""):
         sys.stdout.flush()
     if input_list:
         val = str(input_list.pop(0))
-        sys.stdout.write(val + "\n")
+        sys.stdout.write(val + chr(10))
         sys.stdout.flush()
         return val
     else:
@@ -1025,7 +1025,7 @@ finally:
     sys.stderr = old_stderr
 
 json.dumps(run_res)
-`;
+;
             const jsonStr = await pyodide.runPythonAsync(runnerScript);
             const parsed = JSON.parse(jsonStr);
             result = {
