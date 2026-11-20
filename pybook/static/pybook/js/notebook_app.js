@@ -20,48 +20,50 @@
     algorithms: []
   };
 
-  // DOM Cache
-  const DOM = {
-    notebookBook: document.getElementById('notebookBook'),
-    bookCover: document.getElementById('bookCover'),
-    notebookPage: document.getElementById('notebookPage'),
-    stationeryBar: document.getElementById('stationeryBar'),
-    stationeryBarLocked: document.getElementById('stationeryBarLocked'),
-    btnUnlockPrompt: document.getElementById('btnUnlockPrompt'),
-    blocksContainer: document.getElementById('blocksContainer'),
-    notebookTitleInput: document.getElementById('notebookTitleInput'),
-    pageTitleInput: document.getElementById('pageTitleInput'),
-    pageNumberDisplay: document.getElementById('pageNumberDisplay'),
-    pageIndicatorPill: document.getElementById('pageIndicatorPill'),
-    btnPrevPage: document.getElementById('btnPrevPage'),
-    btnNextPage: document.getElementById('btnNextPage'),
-    btnRunGlobal: document.getElementById('btnRunGlobal'),
-    btnSaveGlobal: document.getElementById('btnSaveGlobal'),
-    btnOpenCover: document.getElementById('btnOpenCover'),
-    floatingRunPill: document.getElementById('floatingRunPill'),
-    notebookSelector: document.getElementById('notebookSelector'),
-    btnNewNotebook: document.getElementById('btnNewNotebook'),
+  // Dynamic DOM Cache
+  const DOM = {};
+
+  function initDOM() {
+    DOM.notebookBook = document.getElementById('notebookBook');
+    DOM.bookCover = document.getElementById('bookCover');
+    DOM.notebookPage = document.getElementById('notebookPage');
+    DOM.stationeryBar = document.getElementById('stationeryBar');
+    DOM.stationeryBarLocked = document.getElementById('stationeryBarLocked');
+    DOM.btnUnlockPrompt = document.getElementById('btnUnlockPrompt');
+    DOM.blocksContainer = document.getElementById('blocksContainer');
+    DOM.notebookTitleInput = document.getElementById('notebookTitleInput');
+    DOM.pageTitleInput = document.getElementById('pageTitleInput');
+    DOM.pageNumberDisplay = document.getElementById('pageNumberDisplay');
+    DOM.pageIndicatorPill = document.getElementById('pageIndicatorPill');
+    DOM.btnPrevPage = document.getElementById('btnPrevPage');
+    DOM.btnNextPage = document.getElementById('btnNextPage');
+    DOM.btnRunGlobal = document.getElementById('btnRunGlobal');
+    DOM.btnSaveGlobal = document.getElementById('btnSaveGlobal');
+    DOM.btnOpenCover = document.getElementById('btnOpenCover');
+    DOM.floatingRunPill = document.getElementById('floatingRunPill');
+    DOM.notebookSelector = document.getElementById('notebookSelector');
+    DOM.btnNewNotebook = document.getElementById('btnNewNotebook');
     // Auth elements
-    authBtnTrigger: document.getElementById('authBtnTrigger'),
-    authModal: document.getElementById('authModal'),
-    btnCloseAuth: document.getElementById('btnCloseAuth'),
-    userDisplayCapsule: document.getElementById('userDisplayCapsule'),
-    userTag: document.getElementById('userTag'),
-    btnLogout: document.getElementById('btnLogout'),
-    authForm: document.getElementById('authForm'),
-    authUsernameInput: document.getElementById('authUsername'),
-    authPasswordInput: document.getElementById('authPassword'),
-    authEmailInput: document.getElementById('authEmail'),
-    authEmailGroup: document.getElementById('authEmailGroup'),
-    authSubmitBtn: document.getElementById('authSubmitBtn'),
-    tabSignIn: document.getElementById('tabSignIn'),
-    tabSignUp: document.getElementById('tabSignUp'),
+    DOM.authBtnTrigger = document.getElementById('authBtnTrigger');
+    DOM.authModal = document.getElementById('authModal');
+    DOM.btnCloseAuth = document.getElementById('btnCloseAuth');
+    DOM.userDisplayCapsule = document.getElementById('userDisplayCapsule');
+    DOM.userTag = document.getElementById('userTag');
+    DOM.btnLogout = document.getElementById('btnLogout');
+    DOM.authForm = document.getElementById('authForm');
+    DOM.authUsernameInput = document.getElementById('authUsername');
+    DOM.authPasswordInput = document.getElementById('authPassword');
+    DOM.authEmailInput = document.getElementById('authEmail');
+    DOM.authEmailGroup = document.getElementById('authEmailGroup');
+    DOM.authSubmitBtn = document.getElementById('authSubmitBtn');
+    DOM.tabSignIn = document.getElementById('tabSignIn');
+    DOM.tabSignUp = document.getElementById('tabSignUp');
     // Algorithms
-    algorithmsModal: document.getElementById('algorithmsModal'),
-    algorithmsList: document.getElementById('algorithmsList'),
-    toast: document.getElementById('toastNotice'),
-    toastText: document.getElementById('toastText')
-  };
+    DOM.algorithmsModal = document.getElementById('algorithmsModal');
+    DOM.algorithmsList = document.getElementById('algorithmsList');
+    DOM.toast = document.getElementById('toastNotice');
+    DOM.toastText = document.getElementById('toastText');
+  }
 
 
   const LINE_HEIGHT_PX = 36;
@@ -246,6 +248,7 @@
 
   // Initialize
   async function init() {
+    initDOM();
     setupEventListeners();
     // Warm up Pyodide in background so execution is instant when user runs code!
     if (typeof loadPyodide === 'function') {
