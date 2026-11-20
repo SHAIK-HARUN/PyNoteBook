@@ -1,0 +1,1655 @@
+/* ===================================================================
+   PYNOTEBOOK: REALISTIC RULED NOTEBOOK WITH TIMES NEW ROMAN THEORY,
+   SEAMLESS TEXT-FORMAT CODE, AND SELECTION EXECUTION ON NEXT LINE
+   Line height: strictly 36px aligned across all notebook lines
+   =================================================================== */
+
+:root {
+  --line-height: 36px;
+  --paper-bg: #fffdf9;
+  --line-color: #bfdbfe; /* classic soft blue ruled line */
+  --margin-line: #f87171; /* red margin line */
+  --margin-width: 65px;
+  --spiral-width: 32px;
+  --ink-blue: #1e3a8a;
+  --ink-black: #111827;
+  --font-theory: 'Times New Roman', Times, 'Liberation Serif', serif;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-code: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: radial-gradient(circle at 50% 30%, #1e293b, #0f172a 85%);
+  color: var(--ink-black);
+  font-family: var(--font-sans);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+/* Desk Surface Background */
+.desk-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px 15px 50px;
+  background: 
+    radial-gradient(ellipse at center, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.95) 100%),
+    repeating-linear-gradient(45deg, rgba(255,255,255,0.015) 0px, rgba(255,255,255,0.015) 2px, transparent 2px, transparent 10px);
+}
+
+/* Top App Bar */
+.app-header {
+  width: 100%;
+  max-width: 1100px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 24px;
+  background: rgba(30, 41, 59, 0.9);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  color: white;
+  margin-bottom: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  z-index: 50;
+}
+
+.brand-badge {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-badge .logo-icon {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
+}
+
+.brand-title {
+  font-size: 1.2rem;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+  background: linear-gradient(135deg, #ffffff, #93c5fd);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.brand-sub {
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Auth User Capsule in Header */
+.auth-capsule {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  font-size: 0.85rem;
+}
+
+.user-tag {
+  color: #93c5fd;
+  font-weight: 700;
+}
+
+/* Toolbar Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  outline: none;
+}
+
+.btn:active {
+  transform: scale(0.96);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: white;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #60a5fa, #3b82f6);
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.1);
+  color: #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.btn-auth {
+  background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+  color: white;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+.btn-auth:hover {
+  background: linear-gradient(135deg, #a78bfa, #8b5cf6);
+}
+
+.btn-run {
+  background: linear-gradient(135deg, #10b981, #047857);
+  color: white;
+  font-size: 0.95rem;
+  padding: 10px 18px;
+  border-radius: 10px;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+.btn-run:hover {
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6);
+  transform: translateY(-1px);
+}
+
+.btn-run.pulse-glow {
+  animation: runPulse 1.4s infinite;
+}
+
+/* Notebook Stationery Toolbar */
+.stationery-bar-locked {
+  width: 100%;
+  max-width: 1000px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  background: rgba(39, 39, 42, 0.9);
+  border-radius: 14px;
+  border: 1px dashed #f59e0b;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  margin-bottom: 24px;
+  color: #fef3c7;
+  font-size: 0.95rem;
+  font-weight: 600;
+  z-index: 40;
+}
+
+.stationery-bar {
+  width: 100%;
+  max-width: 1000px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 12px 20px;
+  background: #27272a;
+  border-radius: 14px;
+  border: 1px solid #3f3f46;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  margin-bottom: 24px;
+  z-index: 40;
+}
+
+.tool-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tool-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #a1a1aa;
+  font-weight: 700;
+  margin-right: 4px;
+}
+
+/* 3D BOOK STAGE */
+.book-stage {
+  perspective: 2000px;
+  width: 100%;
+  max-width: 960px;
+  min-height: 840px;
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+/* The Notebook Book */
+.notebook-book {
+  position: relative;
+  width: 100%;
+  min-height: 840px;
+  border-radius: 8px 18px 18px 8px;
+  transform-style: preserve-3d;
+  box-shadow: 
+    0 25px 60px rgba(0, 0, 0, 0.65),
+    0 5px 15px rgba(0, 0, 0, 0.4);
+  background: #1e293b;
+  display: flex;
+  transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ===================================================================
+   STRICT CLOSED & OPEN BOOK STATES
+   Without signin, don't open book! After signin only, open book!
+   =================================================================== */
+.notebook-book.is-closed {
+  min-height: 580px;
+  cursor: pointer;
+}
+
+.notebook-book.is-closed .notebook-page {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+.notebook-book.is-closed .book-cover {
+  position: relative !important;
+  width: 100% !important;
+  min-height: 580px !important;
+  transform: none !important;
+  pointer-events: auto !important;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7);
+}
+
+.notebook-book.is-open {
+  min-height: 840px;
+}
+
+.notebook-book.is-open .notebook-page {
+  display: flex !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
+
+.notebook-book.is-open .book-cover {
+  position: absolute !important;
+  transform: rotateY(-180deg) !important;
+  pointer-events: none !important;
+}
+
+/* Hardcover closed state */
+.book-cover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 8px 18px 18px 8px;
+  background: linear-gradient(135deg, #0f172a, #1e293b 70%, #0f172a);
+  border: 4px solid #334155;
+  border-left: 22px solid #090d16;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: #f1f5f9;
+  z-index: 30;
+  transform-origin: left center;
+  transition: transform 0.9s cubic-bezier(0.645, 0.045, 0.355, 1);
+  box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+  backface-visibility: hidden;
+}
+
+.book-cover.opened {
+  transform: rotateY(-180deg);
+  pointer-events: none;
+}
+
+.cover-gold-badge {
+  border: 2px dashed #fbbf24;
+  padding: 30px 45px;
+  border-radius: 12px;
+  text-align: center;
+  background: rgba(15, 23, 42, 0.7);
+  box-shadow: 0 0 25px rgba(251, 191, 36, 0.2);
+}
+
+.cover-title {
+  font-size: 2.2rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: #fef08a;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+  margin-bottom: 8px;
+}
+
+.cover-subtitle {
+  font-size: 1rem;
+  color: #94a3b8;
+  margin-bottom: 20px;
+}
+
+.cover-open-prompt {
+  font-size: 0.9rem;
+  background: #fbbf24;
+  color: #0f172a;
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  animation: bounceSlow 2s infinite;
+}
+
+/* REALISTIC RULED NOTEBOOK PAGE (LINED PAPER) */
+.notebook-page {
+  position: relative;
+  width: 100%;
+  min-height: 840px;
+  background-color: var(--paper-bg);
+  border-radius: 4px 14px 14px 4px;
+  box-shadow: inset 15px 0 30px rgba(0, 0, 0, 0.07);
+  display: flex;
+  flex-direction: column;
+  transform-origin: left center;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.6s ease;
+}
+
+/* Spiral binding down left spine */
+.spiral-spine {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--spiral-width);
+  height: 100%;
+  background: linear-gradient(to right, #334155, #1e293b 80%, #0f172a);
+  border-radius: 4px 0 0 4px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: center;
+  z-index: 25;
+}
+
+.spiral-ring {
+  width: 22px;
+  height: 8px;
+  background: linear-gradient(to bottom, #f1f5f9, #94a3b8 50%, #475569);
+  border-radius: 6px;
+  box-shadow: 1px 2px 4px rgba(0,0,0,0.4);
+}
+
+/* Red Margin Line */
+.page-margin-line {
+  position: absolute;
+  top: 0;
+  left: var(--margin-width);
+  bottom: 0;
+  width: 2px;
+  background-color: var(--margin-line);
+  z-index: 10;
+  pointer-events: none;
+  opacity: 0.85;
+}
+
+/* Top Header Strip: Date, Page No., Subject */
+.page-top-header {
+  height: 72px; /* 2 full lines height */
+  margin-left: var(--margin-width);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 25px;
+  border-bottom: 2px solid var(--margin-line);
+  background: rgba(255, 253, 249, 0.85);
+}
+
+.notebook-subject-input {
+  font-family: var(--font-theory);
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--ink-blue);
+  border: none;
+  background: transparent;
+  outline: none;
+  width: 320px;
+}
+
+.header-meta {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.meta-field {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.meta-field input {
+  font-family: var(--font-theory);
+  font-size: 1.2rem;
+  color: var(--ink-blue);
+  border: none;
+  background: transparent;
+  outline: none;
+  width: 110px;
+  border-bottom: 1px dotted #94a3b8;
+}
+
+/* Page Content Lines Body */
+.page-lines-container {
+  flex: 1;
+  padding: 0 25px 40px 0;
+  padding-top: 0;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  /* Authentic horizontal blue notebook lines: exactly 36px per line */
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 35px,
+    var(--line-color) 35px,
+    var(--line-color) 36px
+  );
+  background-size: 100% 36px;
+  background-position: 0 0;
+  background-repeat: repeat-y;
+}
+
+/* INDIVIDUAL LINE / BLOCK ROWS */
+.notebook-block-row {
+  position: relative;
+  display: flex;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: none;
+  box-sizing: border-box;
+  min-height: var(--line-height);
+  transition: background-color 0.2s ease;
+}
+
+.notebook-block-row:hover .block-controls {
+  opacity: 1;
+}
+
+/* Margin Column (Left of red line) - Strictly 1 line height so it never displaces rows */
+.block-margin-col {
+  width: var(--margin-width);
+  min-width: var(--margin-width);
+  height: var(--line-height);
+  max-height: var(--line-height);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 0;
+  margin: 0;
+  user-select: none;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.block-line-number {
+  font-family: var(--font-code);
+  font-size: 0.72rem;
+  color: #94a3b8;
+  line-height: 1;
+  height: auto;
+}
+
+.block-tag {
+  font-size: 0.6rem;
+  font-weight: 800;
+  padding: 1px 3px;
+  border-radius: 3px;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.tag-headline { background: #fef08a; color: #854d0e; }
+.tag-theory { background: #e0e7ff; color: #3730a3; }
+.tag-output { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+.tag-code, .tag-code-green { background: #d1fae5; color: #047857; border: 1px solid #a7f3d0; }
+
+/* Content Column (Right of red line) */
+.block-content-col {
+  flex: 1;
+  padding-left: 15px;
+  padding-top: 0;
+  padding-bottom: 0;
+  margin: 0;
+  box-sizing: border-box;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Block Hover Controls (Delete, Move) */
+.block-controls {
+  position: absolute;
+  right: 10px;
+  top: 4px;
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: 20;
+}
+
+.block-btn-icon {
+  background: white;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  width: 24px;
+  height: 24px;
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #64748b;
+}
+
+.block-btn-icon:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.block-btn-icon.delete:hover {
+  background: #fee2e2;
+  color: #ef4444;
+  border-color: #fca5a5;
+}
+
+/* ===================================================================
+   HEADLINE BLOCK (VIBRANT & SITS ON NOTEBOOK LINES)
+   =================================================================== */
+.headline-block {
+  width: 100%;
+  height: var(--line-height);
+  min-height: var(--line-height);
+  line-height: var(--line-height);
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+.headline-input {
+  width: 100%;
+  font-family: var(--font-theory);
+  font-size: 1.45rem;
+  font-weight: 800;
+  line-height: var(--line-height);
+  height: var(--line-height);
+  border: none;
+  background: transparent;
+  outline: none;
+  color: #0f172a;
+  background: linear-gradient(135deg, #1e40af, #7c3aed);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  padding: 0 4px;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+/* ===================================================================
+   THEORY & CODE IN TEXT FORMAT (TIMES NEW ROMAN ON RULED LINES)
+   No separate section for code! Everything is seamless text format!
+   =================================================================== */
+.theory-block {
+  width: 100%;
+  position: relative;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.theory-textarea {
+  width: 100%;
+  min-height: var(--line-height);
+  font-family: var(--font-theory);
+  font-size: 1.22rem; /* Times New Roman at ~19.5px */
+  line-height: var(--line-height);
+  color: var(--ink-black);
+  border: none;
+  background: transparent;
+  outline: none;
+  resize: none;
+  overflow: hidden;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  display: block;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  caret-color: #2563eb;
+  vertical-align: top;
+}
+
+/* Code text selection highlighting within textarea */
+.theory-textarea::selection {
+  background: rgba(6, 182, 212, 0.35);
+  color: #0c4a6e;
+}
+
+/* Floating Action Button when code text is selected */
+.floating-run-pill {
+  position: absolute;
+  display: none;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.45);
+  z-index: 50;
+  transform: translateY(-100%);
+  transition: opacity 0.2s, transform 0.2s;
+  animation: runPulse 1.3s infinite;
+}
+
+.floating-run-pill.active {
+  display: inline-flex;
+}
+
+/* ===================================================================
+   OUTPUT BLOCK (APPEARS ON NEXT LINE BELOW SELECTED CODE)
+   =================================================================== */
+.output-next-line-block {
+  width: 100%;
+  margin: 4px 0 10px 0;
+  padding: 6px 12px;
+  border-left: 3px solid #10b981;
+  background: rgba(240, 253, 244, 0.7);
+  border-radius: 0 6px 6px 0;
+  font-family: var(--font-code);
+  font-size: 0.95rem;
+  line-height: var(--line-height);
+  color: #065f46;
+}
+
+.output-next-line-block.has-error {
+  border-left-color: #ef4444;
+  background: rgba(254, 242, 242, 0.7);
+  color: #991b1b;
+}
+
+.output-header-strip {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 2px;
+  color: #047857;
+}
+
+.output-text-content {
+  white-space: pre-wrap;
+  font-family: var(--font-code);
+  font-size: 0.9rem;
+  line-height: var(--line-height);
+}
+
+.output-plot-img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 10px auto;
+  border-radius: 6px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* Inline Inserters on Page */
+.inline-inserter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 12px 0;
+  margin-left: var(--margin-width);
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+
+.inline-inserter:hover {
+  opacity: 1;
+}
+
+.btn-add-line {
+  background: white;
+  border: 1px dashed #cbd5e1;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #475569;
+  transition: all 0.2s;
+}
+
+.btn-add-line:hover {
+  border-color: #3b82f6;
+  color: #2563eb;
+  background: #eff6ff;
+  transform: translateY(-1px);
+}
+
+/* Page Navigation Footer */
+.page-turn-footer {
+  margin-left: var(--margin-width);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 25px;
+  border-top: 1px solid #e2e8f0;
+  background: rgba(255, 253, 249, 0.95);
+  border-radius: 0 0 14px 4px;
+}
+
+.page-indicator-pill {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #64748b;
+  background: #f1f5f9;
+  padding: 6px 14px;
+  border-radius: 20px;
+}
+
+/* MODALS (AUTH & ALGORITHMS) */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.modal-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-card {
+  width: 90%;
+  max-width: 520px;
+  max-height: 85vh;
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 16px;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  transform: translateY(20px);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.modal-overlay.active .modal-card {
+  transform: translateY(0);
+}
+
+.modal-header {
+  padding: 18px 24px;
+  border-bottom: 1px solid #334155;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.modal-close {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.modal-body {
+  padding: 24px;
+  overflow-y: auto;
+}
+
+/* Auth Tabs & Form */
+.auth-tabs {
+  display: flex;
+  border-bottom: 1px solid #334155;
+  margin-bottom: 20px;
+}
+
+.auth-tab {
+  flex: 1;
+  text-align: center;
+  padding: 10px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #94a3b8;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+}
+
+.auth-tab.active {
+  color: #60a5fa;
+  border-bottom-color: #3b82f6;
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #cbd5e1;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+
+.form-input {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid #475569;
+  background: #0f172a;
+  color: white;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.form-input:focus {
+  border-color: #3b82f6;
+}
+
+.auth-submit-btn {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: white;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 10px;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+}
+
+.auth-submit-btn:hover {
+  background: linear-gradient(135deg, #60a5fa, #3b82f6);
+}
+
+/* Toast Notifications */
+.toast-notice {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  padding: 12px 20px;
+  border-radius: 10px;
+  background: #0f172a;
+  border: 1px solid #334155;
+  color: white;
+  font-size: 0.85rem;
+  font-weight: 600;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transform: translateY(100px);
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  z-index: 120;
+}
+
+.toast-notice.show {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* ===================================================================
+   INTERACTIVE INPUT PROMPT BOX (When Python code calls input())
+   =================================================================== */
+.notebook-interactive-prompt {
+  width: 100%;
+  margin: 10px 0;
+  padding: 14px 18px;
+  background: #ffffff;
+  border: 2px solid #3b82f6;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(59, 130, 246, 0.25);
+  animation: promptSlide 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  z-index: 25;
+}
+
+@keyframes promptSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.prompt-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #1e40af;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.prompt-msg {
+  font-family: var(--font-code);
+  font-size: 1rem;
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: 12px;
+  background: #eff6ff;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border-left: 4px solid #3b82f6;
+}
+
+.prompt-action-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.prompt-field {
+  flex: 1;
+  padding: 9px 14px;
+  font-family: var(--font-code);
+  font-size: 0.95rem;
+  border: 1.5px solid #94a3b8;
+  border-radius: 8px;
+  outline: none;
+  background: #ffffff;
+  color: #0f172a;
+  transition: all 0.2s;
+}
+
+.prompt-field:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+}
+
+/* ===================================================================
+   USER GIVES INPUT DIRECTLY INSIDE OUTPUT SECTION
+   =================================================================== */
+.output-next-line-block.output-waiting-input {
+  border-left: 3px solid #3b82f6;
+  background: rgba(239, 246, 255, 0.95);
+  box-shadow: 0 6px 18px rgba(59, 130, 246, 0.2);
+}
+
+.pulse-tag {
+  color: #2563eb;
+  font-weight: 700;
+  animation: runPulse 1.5s infinite;
+}
+
+.inline-input-wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  vertical-align: middle;
+  margin-left: 4px;
+}
+
+.terminal-inline-input {
+  background: #ffffff;
+  border: 2px solid #3b82f6;
+  border-radius: 6px;
+  font-family: var(--font-code);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1e3a8a;
+  padding: 4px 10px;
+  outline: none;
+  min-width: 160px;
+  max-width: 320px;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.25);
+  transition: all 0.2s;
+}
+
+.terminal-inline-input:focus {
+  border-color: #1d4ed8;
+  box-shadow: 0 0 14px rgba(37, 99, 235, 0.4);
+}
+
+.btn-inline-submit {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 4px 12px;
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3);
+  transition: all 0.2s;
+}
+
+.btn-inline-submit:hover {
+  background: linear-gradient(135deg, #60a5fa, #3b82f6);
+  transform: translateY(-1px);
+}
+
+/* ===================================================================
+   PYTHON INTELLISENSE & AUTOCOMPLETE SUGGESTIONS
+   =================================================================== */
+.intellisense-dropdown {
+  position: absolute;
+  width: 320px;
+  max-height: 250px;
+  background: #1e293b;
+  border: 1.5px solid #3b82f6;
+  border-radius: 10px;
+  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.55), 0 0 18px rgba(59, 130, 246, 0.35);
+  overflow-y: auto;
+  z-index: 1000;
+  display: none;
+  font-family: var(--font-code);
+  font-size: 0.85rem;
+  color: #f1f5f9;
+  backdrop-filter: blur(10px);
+}
+
+.intellisense-dropdown.active {
+  display: block;
+}
+
+.intellisense-item {
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  transition: background 0.15s;
+}
+
+.intellisense-item:hover,
+.intellisense-item.selected {
+  background: #2563eb;
+  color: white;
+}
+
+.intellisense-item-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.intellisense-icon {
+  font-size: 0.7rem;
+  padding: 2px 5px;
+  border-radius: 4px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.icon-func { background: #3b82f6; color: white; }
+.icon-method { background: #8b5cf6; color: white; }
+.icon-module { background: #10b981; color: white; }
+.icon-keyword { background: #f59e0b; color: white; }
+
+.intellisense-desc {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  max-width: 140px;
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.intellisense-item.selected .intellisense-desc {
+  color: #dbeafe;
+}
+
+/* ===================================================================
+   NOTEBOOK SELECTOR & SAVED PREPARATION SWITCHER
+   =================================================================== */
+.notebook-select-dropdown {
+  background: #0f172a;
+  color: #93c5fd;
+  border: 1px solid #475569;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  outline: none;
+  max-width: 190px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.notebook-select-dropdown:hover,
+.notebook-select-dropdown:focus {
+  border-color: #3b82f6;
+}
+
+/* Page Designer Signature on Ruled Header */
+.page-designer-signature {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  background: linear-gradient(90deg, #ec4899, #8b5cf6, #3b82f6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-transform: uppercase;
+}
+
+/* ===================================================================
+   RESPONSIVE DESIGN FOR ALL DEVICES (WINDOWS, MAC, ANDROID, TABLETS)
+   =================================================================== */
+
+/* Tablets & Small Laptops (Windows Surface, iPad, Mac 13") */
+@media (max-width: 960px) {
+  .desk-container {
+    padding: 12px 10px 40px;
+  }
+
+  .app-header {
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 12px 16px;
+  }
+
+  .stationery-bar {
+    padding: 10px 14px;
+    gap: 10px;
+  }
+
+  .notebook-book {
+    min-height: 750px;
+  }
+
+  .notebook-page {
+    min-height: 750px;
+  }
+}
+
+/* Mobile Devices (Android Phones, iPhones, Galaxy Fold) */
+@media (max-width: 680px) {
+  :root {
+    --margin-width: 44px;
+    --spiral-width: 22px;
+  }
+
+  .desk-container {
+    padding: 8px 6px 30px;
+  }
+
+  /* Compact Header on Mobile */
+  .app-header {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 10px 14px;
+    margin-bottom: 12px;
+    border-radius: 12px;
+    gap: 10px;
+  }
+
+  .brand-badge {
+    justify-content: center;
+  }
+
+  .brand-title {
+    font-size: 1.05rem;
+  }
+
+  .brand-sub {
+    font-size: 0.7rem;
+    text-align: center;
+  }
+
+  .header-actions {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .btn {
+    padding: 6px 10px;
+    font-size: 0.78rem;
+  }
+
+  .notebook-select-dropdown {
+    max-width: 140px;
+    font-size: 0.75rem;
+    padding: 5px 8px;
+  }
+
+  /* Stationery Bar on Mobile */
+  .stationery-bar {
+    padding: 8px 10px;
+    margin-bottom: 14px;
+    border-radius: 10px;
+    gap: 8px;
+    justify-content: center;
+  }
+
+  .tool-group {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  /* 3D Book & Page on Mobile */
+  .book-stage {
+    min-height: 650px;
+  }
+
+  .notebook-book {
+    min-height: 650px;
+    border-radius: 6px 12px 12px 6px;
+  }
+
+  .book-cover {
+    border-left-width: 14px;
+    border-radius: 6px 12px 12px 6px;
+  }
+
+  .cover-gold-badge {
+    padding: 20px 14px;
+    margin: 0 10px;
+  }
+
+  .cover-title {
+    font-size: 1.45rem;
+  }
+
+  .cover-subtitle {
+    font-size: 0.85rem;
+    margin-bottom: 14px;
+  }
+
+  .designer-harun-badge {
+    padding: 8px 16px;
+    margin: 12px 0;
+  }
+
+  .designer-text-gradient {
+    font-size: 0.85rem;
+    letter-spacing: 0.4px;
+  }
+
+  /* Ruled Lined Paper on Mobile */
+  .notebook-page {
+    min-height: 650px;
+    border-radius: 4px 10px 10px 4px;
+  }
+
+  .spiral-spine {
+    width: var(--spiral-width);
+  }
+
+  .spiral-ring {
+    width: 15px;
+    height: 6px;
+  }
+
+  .page-top-header {
+    height: 65px;
+    padding: 0 10px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .notebook-subject-input {
+    font-size: 1.15rem;
+    width: 100%;
+  }
+
+  .header-meta {
+    gap: 10px;
+    font-size: 0.75rem;
+  }
+
+  .header-meta input {
+    width: 70px;
+    font-size: 0.95rem;
+  }
+
+  .page-lines-container {
+    padding: 0 10px 30px 0;
+  }
+
+  .block-margin-col {
+    width: var(--margin-width);
+    min-width: var(--margin-width);
+    padding-top: 4px;
+  }
+
+  .block-content-col {
+    padding-left: 8px;
+  }
+
+  .theory-textarea,
+  .code-highlight-overlay {
+    font-size: 1.05rem !important; /* readable on Android screens */
+  }
+
+  .headline-input {
+    font-size: 1.2rem;
+  }
+
+  /* Mobile Floating Run Button docked at bottom for easy thumb tapping */
+  .floating-run-pill {
+    position: fixed !important;
+    bottom: 20px !important;
+    right: 20px !important;
+    top: auto !important;
+    left: auto !important;
+    transform: none !important;
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.55);
+    font-size: 0.85rem;
+    padding: 10px 18px;
+    z-index: 100;
+  }
+
+  /* Page Footer on Mobile */
+  .page-turn-footer {
+    padding: 12px 10px;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .page-indicator-pill {
+    font-size: 0.78rem;
+    padding: 4px 10px;
+  }
+
+  /* Modals on Mobile */
+  .modal-card {
+    width: 95%;
+    max-height: 90vh;
+  }
+
+  .modal-body {
+    padding: 16px;
+  }
+
+  /* Inline Output Section Input on Mobile */
+  .terminal-inline-input {
+    min-width: 110px;
+    max-width: 180px;
+    font-size: 0.85rem;
+    padding: 4px 6px;
+  }
+
+  .btn-inline-submit {
+    padding: 4px 8px;
+    font-size: 0.75rem;
+  }
+
+  .intellisense-dropdown {
+    width: 250px;
+    max-height: 200px;
+  }
+}
+
+/* ===================================================================
+   CODE IN GREEN COLOUR & OUTPUT IN BROWN COLOUR
+   =================================================================== */
+.code-mode-green {
+  color: #047857 !important; /* Rich green colour for code lines */
+  font-family: var(--font-code) !important;
+  font-weight: 600 !important;
+  font-size: 1.15rem !important;
+  line-height: var(--line-height) !important;
+  caret-color: #059669 !important;
+  text-shadow: 0 0 1px rgba(4, 120, 87, 0.15);
+}
+
+.code-mode-green::placeholder {
+  color: #6ee7b7 !important;
+  font-style: italic;
+}
+
+.code-mode-green::selection {
+  background: rgba(16, 185, 129, 0.35) !important;
+  color: #064e3b !important;
+}
+
+.tag-code, .tag-code-green {
+  background: #d1fae5 !important;
+  color: #047857 !important;
+  border: 1px solid #a7f3d0 !important;
+  font-weight: 800 !important;
+}
+
+/* Output in Brown Colour (Strictly Brown Theme) */
+.output-next-line-block.output-brown-theme {
+  color: #78350f !important; /* Deep rich brown colour for output */
+  border-left: 4px solid #92400e !important; /* Solid brown bar */
+  background: #fffbeb !important; /* Warm amber/brown parchment */
+  border-radius: 0 8px 8px 0 !important;
+  box-shadow: 0 4px 14px rgba(146, 64, 14, 0.12) !important;
+}
+
+.output-brown-theme .output-header-strip {
+  color: #92400e !important; /* Rich brown output header */
+  font-weight: 800 !important;
+}
+
+.output-brown-theme .output-text-content {
+  color: #78350f !important; /* Rich brown output text */
+  font-family: var(--font-code) !important;
+  font-size: 0.95rem !important;
+  font-weight: 700 !important;
+  line-height: var(--line-height) !important;
+}
+
+.output-brown-theme .stdout-prefix {
+  color: #78350f !important;
+  font-weight: 700 !important;
+}
+
+.output-brown-theme.output-waiting-input {
+  border-left-color: #92400e !important;
+  background: #fef3c7 !important;
+}
+
+.output-brown-theme .terminal-inline-input {
+  color: #78350f !important;
+  border: 2px solid #92400e !important;
+  background: #ffffff !important;
+  font-weight: 700 !important;
+}
+
+.output-brown-theme .terminal-inline-input::placeholder {
+  color: #b45309 !important;
+}
+
+.output-brown-theme .btn-inline-submit {
+  background: linear-gradient(135deg, #b45309, #78350f) !important;
+  color: white !important;
+  font-weight: 700 !important;
+}
+
+/* ===================================================================
+   PYTHON SYNTAX-HIGHLIGHT OVERLAY
+   The overlay sits behind the transparent textarea and renders coloured
+   tokens. The textarea keeps keyboard/selection; overlay shows colour.
+   =================================================================== */
+
+/* Wrapper holds both overlay and textarea in the same space */
+.code-editor-wrapper {
+  position: relative;
+  width: 100%;
+  display: block;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* The coloured overlay div */
+.code-highlight-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  font-family: var(--font-code, 'JetBrains Mono', monospace) !important;
+  font-size: 1.15rem !important;
+  font-weight: 600 !important;
+  line-height: var(--line-height, 36px) !important;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  box-sizing: border-box;
+  /* Default code colour (non-token text) */
+  color: #047857;
+  letter-spacing: normal !important;
+  tab-size: 4 !important;
+  -moz-tab-size: 4 !important;
+}
+
+.code-editor-wrapper textarea {
+  letter-spacing: normal !important;
+  tab-size: 4 !important;
+  -moz-tab-size: 4 !important;
+}
+
+/* Transparent textarea sits on top; caret and selection still visible */
+.code-editor-wrapper textarea.code-transparent {
+  position: relative;
+  z-index: 2;
+  color: transparent !important;
+  background: transparent !important;
+  caret-color: #059669 !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
+/* Selection highlight stays readable */
+.code-editor-wrapper textarea.code-transparent::selection {
+  background: rgba(16, 185, 129, 0.35) !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
+/* --- Token colours --- */
+/* Keywords: bold blue */
+.code-highlight-overlay .phl-kw {
+  color: #2563eb;
+  font-weight: 800;
+}
+
+/* Builtins: violet */
+.code-highlight-overlay .phl-bi {
+  color: #7c3aed;
+  font-weight: 700;
+}
+
+/* Strings: amber */
+.code-highlight-overlay .phl-st {
+  color: #d97706;
+}
+
+/* Comments: muted grey italic */
+.code-highlight-overlay .phl-cm {
+  color: #64748b;
+  font-style: italic;
+}
+
+/* Numbers: orange */
+.code-highlight-overlay .phl-nm {
+  color: #ea580c;
+}
+
+/* Operators / punctuation: teal */
+.code-highlight-overlay .phl-op {
+  color: #0891b2;
+}
+
+/* Regular identifiers: green (default code colour) */
+.code-highlight-overlay .phl-id {
+  color: #047857;
+}

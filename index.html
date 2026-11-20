@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PyNotebook - Ruled Python Theory & Code Notebook</title>
+  
+  <!-- Fonts: Inter for UI & JetBrains Mono for Code outputs -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- App Stylesheets -->
+  <link rel="stylesheet" href="./css/notebook_lines.css">
+  <link rel="stylesheet" href="./css/animations.css">
+
+  <!-- Pyodide for Browser-based Python Execution on Netlify -->
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
+</head>
+<body>
+
+  <!-- Floating Pill when Code is Selected -->
+  <button class="floating-run-pill" id="floatingRunPill">
+    Run Selected Code &rarr;
+  </button>
+
+  <div class="desk-container">
+    
+    <!-- Top Navigation Header -->
+    <header class="app-header">
+      <div class="brand-badge">
+        <div class="logo-icon">Py</div>
+        <div>
+          <div class="brand-title">PyNotebook Portal</div>
+          <div class="brand-sub">Times New Roman Theory, Ruled Lines & Text-Format Python</div>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- Notebook Switcher / Saved Notes Selector -->
+        <select id="notebookSelector" class="notebook-select-dropdown" title="Switch your saved study notebooks">
+          <option value="">Loading Notes...</option>
+        </select>
+        <button class="btn btn-secondary" id="btnNewNotebook" title="Create a new notebook">
+          + New Notebook
+        </button>
+
+        <!-- Sign In Button for student persistence -->
+        <button class="btn btn-auth" id="authBtnTrigger">
+          Sign In / Register
+        </button>
+
+        <!-- Logged in state capsule -->
+        <div class="auth-capsule" id="userDisplayCapsule" style="display: none;">
+          <span class="user-tag" id="userTag">Student</span>
+          <button class="btn btn-secondary" id="btnLogout" style="padding: 4px 8px; font-size: 0.75rem;">
+            Sign Out
+          </button>
+        </div>
+
+        <button class="btn btn-secondary" id="btnOpenAlgorithms">
+          Algorithms Library
+        </button>
+
+        <button class="btn btn-secondary" id="btnSaveGlobal">
+          Save Notes
+        </button>
+
+        <button class="btn btn-run" id="btnRunGlobal" title="Select any code on the page, then click to execute!">
+          Run Selected Code
+        </button>
+      </div>
+    </header>
+
+    <!-- Locked Bar when user is not signed in -->
+    <div class="stationery-bar-locked" id="stationeryBarLocked">
+      <span>Notebook is strictly closed and locked.</span>
+      <button class="btn btn-warning" id="btnUnlockPrompt" style="margin-left: 10px; font-weight: 700;">
+        Sign In / Register to Open Book &rarr;
+      </button>
+    </div>
+
+    <!-- Floating Stationery Toolbar (Visible ONLY when user is signed in & book is open) -->
+    <div class="stationery-bar" id="stationeryBar" style="display: none;">
+      <div class="tool-group">
+        <span class="tool-label">Write on Lines:</span>
+        <button class="btn btn-warning" id="btnAddHeadline" title="Write a topic headline on the next line">
+          + Headline
+        </button>
+        <button class="btn btn-primary" id="btnAddTheory" title="Write theory line by line in Times New Roman">
+          + Theory Line
+        </button>
+        <button class="btn btn-success" id="btnAddCodeText" title="Write Python code in text format on the lines">
+          + Code (Text Format)
+        </button>
+      </div>
+
+      <div class="tool-group">
+        <span class="tool-label" style="color: #6ee7b7;">Tip:</span>
+        <span style="font-size: 0.8rem; color: #cbd5e1;">Highlight any code text &rarr; Output appears on the next line!</span>
+      </div>
+
+      <div class="tool-group">
+        <span class="tool-label">Pages:</span>
+        <button class="btn btn-secondary" id="btnNewPage" title="Add next notebook page">
+          + New Page
+        </button>
+      </div>
+    </div>
+
+    <!-- 3D Book & Ruled Notebook Stage -->
+    <div class="book-stage" id="bookStage">
+      <div class="notebook-book is-closed" id="notebookBook">
+
+        <!-- 3D Hardcover (Click to Open) -->
+        <div class="book-cover" id="bookCover">
+          <div class="cover-gold-badge">
+            <div style="font-size: 32px; font-weight: 800; letter-spacing: 2px; color: var(--cover-gold); margin-bottom: 10px;">PYTHON NOTEBOOK</div>
+            <h1 class="cover-title">Python Preparation Notebook</h1>
+            <p class="cover-subtitle">Times New Roman Theory & Text-Format Code Execution</p>
+            
+            <!-- Beautiful Animation Badge: Designed by SHAIK HARUN -->
+            <div class="designer-harun-badge">
+              <span class="designer-text-gradient">This Notes Designed by SHAIK HARUN</span>
+            </div>
+
+            <div class="cover-open-prompt" id="btnOpenCover">
+              Sign In / Register to Open Notebook &rarr;
+            </div>
+          </div>
+        </div>
+
+        <!-- Ruled Notebook Page (Lined Paper - Strictly hidden until user signs in!) -->
+        <div class="notebook-page" id="notebookPage" style="display: none;">
+          
+          <!-- Spiral Metal Binding Rings on Left -->
+          <div class="spiral-spine">
+            <div class="spiral-ring"></div>
+            <div class="spiral-ring"></div>
+            <div class="spiral-ring"></div>
+            <div class="spiral-ring"></div>
+            <div class="spiral-ring"></div>
+            <div class="spiral-ring"></div>
+            <div class="spiral-ring"></div>
+            <div class="spiral-ring"></div>
+            <div class="spiral-ring"></div>
+            <div class="spiral-ring"></div>
+            <div class="spiral-ring"></div>
+            <div class="spiral-ring"></div>
+            <div class="spiral-ring"></div>
+            <div class="spiral-ring"></div>
+            <div class="spiral-ring"></div>
+          </div>
+
+          <!-- Red Margin Line down the page -->
+          <div class="page-margin-line"></div>
+
+          <!-- Top Header Strip: Date, Page No., Subject Title & Signature -->
+          <div class="page-top-header">
+            <div>
+              <input type="text" class="notebook-subject-input" id="notebookTitleInput" value="Python Preparation Notebook" title="Edit Notebook Subject">
+              <div class="page-designer-signature">Designed by Shaik Harun</div>
+            </div>
+            <div class="header-meta">
+              <div class="meta-field">
+                <span>Topic:</span>
+                <input type="text" id="pageTitleInput" value="Chapter 1 - Python Basics">
+              </div>
+              <div class="meta-field">
+                <span>Page No:</span>
+                <span id="pageNumberDisplay" style="font-family: var(--font-theory); font-size: 1.3rem; color: #1e3a8a;">1</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Ruled Paper Content Area: Lines written in Times New Roman & Text Code -->
+          <div class="page-lines-container" id="blocksContainer">
+            <!-- Dynamic Headline, Theory, and Code in Text Format inserted here -->
+          </div>
+
+          <!-- Bottom Inserter on Page -->
+          <div class="inline-inserter">
+            <button class="btn-add-line" id="btnInlineHeadline">+ Add Headline</button>
+            <button class="btn-add-line" id="btnInlineTheory">+ Add Theory Line</button>
+            <button class="btn-add-line" id="btnInlineCodeText">+ Add Code (Text Format)</button>
+          </div>
+
+          <!-- Page Navigation Footer with Fold Transition -->
+          <div class="page-turn-footer">
+            <button class="btn btn-secondary" id="btnPrevPage">
+              &larr; Previous Page
+            </button>
+            <div class="page-indicator-pill" id="pageIndicatorPill">
+              Page 1 of 1
+            </div>
+            <button class="btn btn-secondary" id="btnNextPage">
+              Next Page (Turn Page) &rarr;
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Sign In / Sign Up Modal for Further Preparation -->
+  <div class="modal-overlay" id="authModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">Student Authentication</h3>
+        <button class="modal-close" id="btnCloseAuth">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div style="background: rgba(59, 130, 246, 0.15); border: 1px solid #3b82f6; border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; font-size: 0.82rem; color: #93c5fd;">
+          <strong>Save your notes for further preparation:</strong> Sign in with your username and password to store all your theory, practice code, and notes permanently.
+        </div>
+
+        <div class="auth-tabs">
+          <div class="auth-tab active" id="tabSignIn">Sign In</div>
+          <div class="auth-tab" id="tabSignUp">Create Account</div>
+        </div>
+
+        <form id="authForm">
+          <div class="form-group">
+            <label class="form-label">Username</label>
+            <input type="text" class="form-input" id="authUsername" placeholder="e.g. student_alex" required autocomplete="username">
+          </div>
+
+          <div class="form-group" id="authEmailGroup" style="display: none;">
+            <label class="form-label">Email (Optional)</label>
+            <input type="email" class="form-input" id="authEmail" placeholder="student@example.com" autocomplete="email">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input type="password" class="form-input" id="authPassword" placeholder="Enter your password" required autocomplete="current-password">
+          </div>
+
+          <button type="submit" class="auth-submit-btn" id="authSubmitBtn">
+            Sign In to Save Notes
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Educational Algorithms Library Modal -->
+  <div class="modal-overlay" id="algorithmsModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">Educational Python Algorithms</h3>
+        <button class="modal-close" id="btnCloseAlgorithms">&times;</button>
+      </div>
+      <div class="modal-body" id="algorithmsList">
+        <!-- Loaded dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast-notice" id="toastNotice">
+    <span id="toastText">Welcome to PyNotebook!</span>
+  </div>
+
+  <!-- App Scripts: Python IntelliSense & Notebook Logic -->
+  <script src="./js/python_intellisense.js"></script>
+  <script src="./js/notebook_app.js"></script>
+</body>
+</html>

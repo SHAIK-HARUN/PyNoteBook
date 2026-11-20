@@ -1,0 +1,24 @@
+# Python & Django Bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.sqlite3
+db.sqlite3
+
+# Environment
+.env
+.venv/
+env/
+venv/
+ENV/
+
+# OS and Editor
+.DS_Store
+Thumbs.db
+*.swp
+.vscode/
+.idea/
+
+# Temporary / Build
+build_adapter.py
+index.html.old

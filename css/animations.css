@@ -1,0 +1,233 @@
+/* ===================================================================
+   ANIMATIONS & 3D PAGE FOLDING TRANSITIONS
+   =================================================================== */
+
+/* Run Button Pulsing Glow when code is selected */
+@keyframes runPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
+    transform: scale(1.03);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+    transform: scale(1);
+  }
+}
+
+/* Bounce for prompts */
+@keyframes bounceSlow {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+/* Rainbow text shimmer for headline */
+@keyframes rainbowShimmer {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.rainbow-animated {
+  background: linear-gradient(90deg, #ec4899, #8b5cf6, #3b82f6, #10b981, #f59e0b, #ec4899);
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: rainbowShimmer 6s ease infinite;
+}
+
+/* 3D Page Fold Turning Animation */
+@keyframes pageTurnForward {
+  0% {
+    transform: rotateY(0deg);
+    box-shadow: inset 15px 0 30px rgba(0, 0, 0, 0.07);
+  }
+  30% {
+    box-shadow: inset 50px 0 50px rgba(0, 0, 0, 0.25);
+  }
+  100% {
+    transform: rotateY(-180deg);
+    box-shadow: -20px 0 40px rgba(0, 0, 0, 0.35);
+  }
+}
+
+@keyframes pageTurnBackward {
+  0% {
+    transform: rotateY(-180deg);
+    box-shadow: -20px 0 40px rgba(0, 0, 0, 0.35);
+  }
+  70% {
+    box-shadow: inset 50px 0 50px rgba(0, 0, 0, 0.25);
+  }
+  100% {
+    transform: rotateY(0deg);
+    box-shadow: inset 15px 0 30px rgba(0, 0, 0, 0.07);
+  }
+}
+
+.page-anim-forward {
+  animation: pageTurnForward 0.65s cubic-bezier(0.645, 0.045, 0.355, 1) forwards;
+  pointer-events: none;
+}
+
+.page-anim-backward {
+  animation: pageTurnBackward 0.65s cubic-bezier(0.645, 0.045, 0.355, 1) forwards;
+  pointer-events: none;
+}
+
+/* New block entrance fade in */
+@keyframes blockEntrance {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.notebook-block-row {
+  animation: blockEntrance 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Code Output entrance */
+@keyframes outputSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.code-output-card {
+  animation: outputSlideDown 0.3s ease-out;
+}
+
+/* Execution Spinner */
+.spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 0.8s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ===================================================================
+   SHAIK HARUN DESIGNER BADGE ANIMATION WITH BEAUTIFUL COLORS
+   =================================================================== */
+@keyframes harunAurora {
+  0% {
+    background-position: 0% 50%;
+    filter: drop-shadow(0 0 10px rgba(236, 72, 153, 0.6));
+  }
+  33% {
+    background-position: 50% 100%;
+    filter: drop-shadow(0 0 14px rgba(59, 130, 246, 0.7));
+  }
+  66% {
+    background-position: 100% 50%;
+    filter: drop-shadow(0 0 12px rgba(16, 185, 129, 0.6));
+  }
+  100% {
+    background-position: 0% 50%;
+    filter: drop-shadow(0 0 10px rgba(236, 72, 153, 0.6));
+  }
+}
+
+@keyframes borderRotate {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.designer-harun-badge {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 28px;
+  margin: 18px 0;
+  border-radius: 50px;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(8px);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  animation: harunAurora 5s ease-in-out infinite;
+  overflow: hidden;
+}
+
+.designer-harun-badge::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: conic-gradient(
+    #ec4899,
+    #8b5cf6,
+    #3b82f6,
+    #10b981,
+    #f59e0b,
+    #ec4899
+  );
+  z-index: -2;
+  animation: borderRotate 4s linear infinite;
+}
+
+.designer-harun-badge::after {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  background: #0f172a;
+  border-radius: 48px;
+  z-index: -1;
+}
+
+.designer-text-gradient {
+  font-family: var(--font-sans);
+  font-size: 1.15rem;
+  font-weight: 900;
+  letter-spacing: 0.8px;
+  background: linear-gradient(
+    90deg,
+    #fbcfe8,
+    #c4b5fd,
+    #93c5fd,
+    #6ee7b7,
+    #fef08a,
+    #fbcfe8
+  );
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: rainbowShimmer 4s ease infinite;
+  text-transform: uppercase;
+}
