@@ -75,15 +75,31 @@
   const NetlifyAdapter = {
     pyodide: null,
     pyodideLoading: null,
+    // When running on Netlify or client domain, bypass Django fetch immediately for lightning speed!
+    isStaticDeploy: window.location.hostname.includes('netlify.app') || 
+                    window.location.hostname.includes('github.io') || 
+                    window.location.protocol === 'file:' || 
+                    (window.location.port !== '8000' && window.location.port !== '8080'),
 
     async getPyodide() {
       if (this.pyodide) return this.pyodide;
+      if (window.__pyodideInstance) {
+        this.pyodide = window.__pyodideInstance;
+        return this.pyodide;
+      }
+      if (window.__pyodidePromise) {
+        this.pyodide = await window.__pyodidePromise;
+        return this.pyodide;
+      }
       if (this.pyodideLoading) return this.pyodideLoading;
       if (typeof loadPyodide === 'function') {
         this.pyodideLoading = (async () => {
           try {
+            console.log('[PyNotebook] Initializing Pyodide Python engine...');
             const py = await loadPyodide();
+            py.runPython('import sys\nfrom io import StringIO');
             this.pyodide = py;
+            console.log('[PyNotebook] Pyodide ready for instant execution!');
             return py;
           } catch (err) {
             console.warn('Pyodide could not be loaded:', err);
@@ -391,20 +407,22 @@
 
   // Check User Authentication
   async function checkAuth() {
-    try {
-      const res = await fetch('/api/auth/me/');
-      if (res.ok) {
-        const data = await res.json();
-        if (data.authenticated) {
-          State.user = data;
-          updateAuthUI(true, data.username);
-          openNotebook();
-          await loadNotebooksList();
-          return;
+    if (!NetlifyAdapter.isStaticDeploy) {
+      try {
+        const res = await fetch('/api/auth/me/');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.authenticated) {
+            State.user = data;
+            updateAuthUI(true, data.username);
+            openNotebook();
+            await loadNotebooksList();
+            return;
+          }
         }
+      } catch (e) {
+        // Offline mode
       }
-    } catch (e) {
-      // Offline / Netlify mode
     }
 
     // Check LocalStorage session for Netlify
@@ -441,14 +459,16 @@
   // Load Notebooks List & Detail from Django or Netlify LocalStorage
   async function loadNotebooksList(selectId = null) {
     let nbs = [];
-    try {
-      const res = await fetch('/api/notebooks/');
-      if (res.ok) {
-        const data = await res.json();
-        nbs = data.notebooks || [];
+    if (!NetlifyAdapter.isStaticDeploy) {
+      try {
+        const res = await fetch('/api/notebooks/');
+        if (res.ok) {
+          const data = await res.json();
+          nbs = data.notebooks || [];
+        }
+      } catch (err) {
+        // Fallback
       }
-    } catch (err) {
-      // Netlify / LocalStorage mode
     }
 
     if (nbs.length === 0 && State.user) {
@@ -521,20 +541,22 @@
   }
 
   async function loadNotebookDetail(id) {
-    try {
-      const res = await fetch(`/api/notebooks/${id}/`);
-      if (res.ok) {
-        const data = await res.json();
-        State.notebookId = data.id;
-        State.title = data.title;
-        State.pages = data.pages || [];
-        State.currentPageIndex = 0;
-        DOM.notebookTitleInput.value = State.title;
-        renderCurrentPage();
-        return;
+    if (!NetlifyAdapter.isStaticDeploy) {
+      try {
+        const res = await fetch(`/api/notebooks/${id}/`);
+        if (res.ok) {
+          const data = await res.json();
+          State.notebookId = data.id;
+          State.title = data.title;
+          State.pages = data.pages || [];
+          State.currentPageIndex = 0;
+          DOM.notebookTitleInput.value = State.title;
+          renderCurrentPage();
+          return;
+        }
+      } catch (err) {
+        // Fallback
       }
-    } catch (err) {
-      // LocalStorage mode
     }
 
     if (State.user) {
@@ -915,21 +937,23 @@
     try {
       let result = null;
 
-      // 1. Try Django backend first if available
-      try {
-        const response = await fetch('/api/run-code/', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            code: activeExecution.code,
-            inputs: activeExecution.inputs
-          })
-        });
-        if (response.ok) {
-          result = await response.json();
+      // 1. If running on Django backend (port 8000), use server
+      if (!NetlifyAdapter.isStaticDeploy) {
+        try {
+          const response = await fetch('/api/run-code/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              code: activeExecution.code,
+              inputs: activeExecution.inputs
+            })
+          });
+          if (response.ok) {
+            result = await response.json();
+          }
+        } catch (backendErr) {
+          // Server error, fallback to Pyodide
         }
-      } catch (backendErr) {
-        // Django backend not reachable (e.g. deployed on Netlify)
       }
 
       // 2. If backend not reached, execute directly in browser via Pyodide
@@ -1283,18 +1307,20 @@ sys.stderr = StringIO()
     let authSuccess = false;
     let authData = null;
 
-    try {
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(bodyData)
-      });
-      if (res.ok) {
-        authData = await res.json();
-        authSuccess = authData.success;
+    if (!NetlifyAdapter.isStaticDeploy) {
+      try {
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(bodyData)
+        });
+        if (res.ok) {
+          authData = await res.json();
+          authSuccess = authData.success;
+        }
+      } catch (err) {
+        // LocalStorage Auth fallback
       }
-    } catch (err) {
-      // LocalStorage Auth fallback for Netlify
     }
 
     if (!authData) {
@@ -1371,18 +1397,20 @@ sys.stderr = StringIO()
 
   // Educational Algorithms Library
   async function loadAlgorithms() {
-    try {
-      const res = await fetch('/api/algorithms/');
-      if (res.ok) {
-        const data = await res.json();
-        if (data.algorithms && data.algorithms.length > 0) {
-          State.algorithms = data.algorithms;
-          renderAlgorithmsList();
-          return;
+    if (!NetlifyAdapter.isStaticDeploy) {
+      try {
+        const res = await fetch('/api/algorithms/');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.algorithms && data.algorithms.length > 0) {
+            State.algorithms = data.algorithms;
+            renderAlgorithmsList();
+            return;
+          }
         }
+      } catch (err) {
+        // Fallback
       }
-    } catch (err) {
-      // Local algorithms fallback
     }
     State.algorithms = NetlifyAdapter.algorithms;
     renderAlgorithmsList();

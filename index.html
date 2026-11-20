@@ -14,8 +14,23 @@
   <link rel="stylesheet" href="./css/notebook_lines.css">
   <link rel="stylesheet" href="./css/animations.css">
 
-  <!-- Pyodide for Browser-based Python Execution on Netlify -->
+  <!-- Pyodide CDN Preconnect & Engine for Ultra-Fast In-Browser Python Execution -->
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
   <script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
+  <script>
+    // Immediate background initialization for instant execution
+    window.addEventListener('DOMContentLoaded', () => {
+      if (typeof loadPyodide === 'function' && !window.__pyodidePromise) {
+        window.__pyodidePromise = loadPyodide().then(py => {
+          py.runPython('import sys\nfrom io import StringIO');
+          window.__pyodideInstance = py;
+          console.log('Pyodide engine pre-warmed and ready!');
+          return py;
+        }).catch(err => console.warn('Pre-warm error:', err));
+      }
+    });
+  </script>
 </head>
 <body>
 
