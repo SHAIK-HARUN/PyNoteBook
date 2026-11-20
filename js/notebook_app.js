@@ -962,22 +962,80 @@
         const pyodide = await NetlifyAdapter.getPyodide();
         if (pyodide) {
           try {
-            // Set up stdout & stderr capturing
-            pyodide.runPython(`
+            // Setup custom interactive input handler in Pyodide matching Django executor
+            pyodide.globals.set('__user_code__', activeExecution.code);
+            pyodide.globals.set('__inputs_queue__', activeExecution.inputs || []);
+
+            const runnerScript = `
 import sys
-from io import StringIO
-sys.stdout = StringIO()
-sys.stderr = StringIO()
-`);
-            // Run user Python code asynchronously
-            await pyodide.runPythonAsync(activeExecution.code);
-            const stdout = pyodide.runPython("sys.stdout.getvalue()");
-            const stderr = pyodide.runPython("sys.stderr.getvalue()");
+import io
+import builtins
+import json
+
+class NeedsInput(Exception):
+    def __init__(self, prompt=""):
+        self.prompt = prompt
+
+stdout_capture = io.StringIO()
+stderr_capture = io.StringIO()
+old_stdout = sys.stdout
+old_stderr = sys.stderr
+sys.stdout = stdout_capture
+sys.stderr = stderr_capture
+
+input_list = list(__inputs_queue__)
+
+def custom_input(prompt=""):
+    if prompt:
+        sys.stdout.write(str(prompt))
+        sys.stdout.flush()
+    if input_list:
+        val = str(input_list.pop(0))
+        sys.stdout.write(val + "\n")
+        sys.stdout.flush()
+        return val
+    else:
+        raise NeedsInput(str(prompt))
+
+builtins.input = custom_input
+
+run_res = {}
+try:
+    exec(__user_code__, {'__name__': '__main__', '__builtins__': builtins, 'input': custom_input})
+    run_res['success'] = True
+    run_res['needs_input'] = False
+    run_res['stdout'] = stdout_capture.getvalue()
+    run_res['stderr'] = stderr_capture.getvalue()
+except NeedsInput as ni:
+    run_res['success'] = False
+    run_res['needs_input'] = True
+    run_res['prompt'] = ni.prompt
+    run_res['stdout'] = stdout_capture.getvalue()
+    run_res['stderr'] = ""
+except Exception as e:
+    import traceback
+    err_msg = traceback.format_exc()
+    run_res['success'] = False
+    run_res['needs_input'] = False
+    run_res['stdout'] = stdout_capture.getvalue()
+    run_res['stderr'] = err_msg
+    run_res['error'] = str(e)
+finally:
+    sys.stdout = old_stdout
+    sys.stderr = old_stderr
+
+json.dumps(run_res)
+`;
+            const jsonStr = await pyodide.runPythonAsync(runnerScript);
+            const parsed = JSON.parse(jsonStr);
             result = {
-              success: !stderr,
-              stdout: stdout,
-              stderr: stderr,
-              execution_time: '0.04s (In-Browser Pyodide)'
+              success: parsed.success,
+              needs_input: parsed.needs_input,
+              prompt: parsed.prompt,
+              stdout: parsed.stdout,
+              stderr: parsed.stderr,
+              error: parsed.error,
+              execution_time: '0.02s (In-Browser Pyodide)'
             };
           } catch (pyErr) {
             result = {
