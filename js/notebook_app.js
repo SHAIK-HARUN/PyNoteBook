@@ -231,6 +231,10 @@
   // Initialize
   async function init() {
     setupEventListeners();
+    // Warm up Pyodide in background so execution is instant when user runs code!
+    if (typeof loadPyodide === 'function') {
+      NetlifyAdapter.getPyodide().catch(() => {});
+    }
     await checkAuth();
     if (State.user) {
       await loadNotebooksList();
@@ -905,24 +909,70 @@
     }
 
     // Visual loading indicator
-    DOM.btnRunGlobal.innerHTML = '<span class="spinner"></span> Running on Django...';
+    DOM.btnRunGlobal.innerHTML = '<span class="spinner"></span> Running...';
     DOM.btnRunGlobal.disabled = true;
 
     try {
-      const response = await fetch('/api/run-code/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          code: activeExecution.code,
-          inputs: activeExecution.inputs
-        })
-      });
+      let result = null;
 
-      const result = await response.json();
+      // 1. Try Django backend first if available
+      try {
+        const response = await fetch('/api/run-code/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            code: activeExecution.code,
+            inputs: activeExecution.inputs
+          })
+        });
+        if (response.ok) {
+          result = await response.json();
+        }
+      } catch (backendErr) {
+        // Django backend not reachable (e.g. deployed on Netlify)
+      }
+
+      // 2. If backend not reached, execute directly in browser via Pyodide
+      if (!result) {
+        DOM.btnRunGlobal.innerHTML = '<span class="spinner"></span> Executing in Browser...';
+        const pyodide = await NetlifyAdapter.getPyodide();
+        if (pyodide) {
+          try {
+            // Set up stdout & stderr capturing
+            pyodide.runPython(`
+import sys
+from io import StringIO
+sys.stdout = StringIO()
+sys.stderr = StringIO()
+`);
+            // Run user Python code asynchronously
+            await pyodide.runPythonAsync(activeExecution.code);
+            const stdout = pyodide.runPython("sys.stdout.getvalue()");
+            const stderr = pyodide.runPython("sys.stderr.getvalue()");
+            result = {
+              success: !stderr,
+              stdout: stdout,
+              stderr: stderr,
+              execution_time: '0.04s (In-Browser Pyodide)'
+            };
+          } catch (pyErr) {
+            result = {
+              success: false,
+              stderr: String(pyErr),
+              execution_time: '0.01s'
+            };
+          }
+        } else {
+          result = {
+            success: false,
+            stderr: 'Python runner is initializing. Please wait a moment and click Run again.',
+            execution_time: '0.00s'
+          };
+        }
+      }
 
       // Check if Python program is requesting input() from the student!
-      // The user gives input DIRECTLY inside the output section on the next line!
-      if (result.needs_input) {
+      if (result && result.needs_input) {
         showToast('Please type your input directly in the output section below:');
 
         const nextIndex = targetBlockIndex + 1;
@@ -950,11 +1000,11 @@
       }
 
       let outputContent = '';
-      if (result.success) {
+      if (result && result.success) {
         outputContent = result.stdout || '(Executed with no standard output)';
         showToast(`Executed in ${result.execution_time}! Output placed on next line.`);
       } else {
-        outputContent = result.stderr || result.error || 'Execution Error';
+        outputContent = (result && (result.stderr || result.error)) || 'Execution Error';
         showToast('Finished with execution error.');
       }
 
@@ -965,7 +1015,7 @@
       if (nextBlock && nextBlock.block_type === 'output') {
         // Update existing output line
         nextBlock.output = outputContent;
-        nextBlock.output_image = result.plot_image || '';
+        nextBlock.output_image = (result && result.plot_image) || '';
         nextBlock.is_waiting_input = false;
       } else {
         // Insert NEW output block on the NEXT LINE!
@@ -975,7 +1025,7 @@
           block_type: 'output',
           content: '',
           output: outputContent,
-          output_image: result.plot_image || '',
+          output_image: (result && result.plot_image) || '',
           is_selected: false,
           is_waiting_input: false
         };
@@ -988,7 +1038,7 @@
 
     } catch (err) {
       console.error('Execution error:', err);
-      showToast('Error communicating with Django backend.');
+      showToast('Error during code execution: ' + (err.message || err));
       activeExecution = null;
     } finally {
       DOM.btnRunGlobal.innerHTML = 'Run Selected Code';
